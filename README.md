@@ -329,3 +329,15 @@ simplemde.clearAutosavedValue(); // no returned value
 SimpleMDE began as an improvement of [lepture's Editor project](https://github.com/lepture/editor), but has now taken on an identity of its own. It is bundled with [CodeMirror](https://github.com/codemirror/codemirror) and depends on [Font Awesome](http://fontawesome.io).
 
 CodeMirror is the backbone of the project and parses much of the Markdown syntax as it's being written. This allows us to add styles to the Markdown that's being written. Additionally, a toolbar and status bar have been added to the top and bottom, respectively. Previews are rendered by [Marked](https://github.com/chjj/marked) using GFM.
+
+
+<todo>
+	add edit box into body
+		it is also for edit button at first in the box
+	change for more detail box design.
+		select box for model
+	change function applied, not init 
+		need to remove "var simplemde = new SimpleMDE({ element: document.getElementById("MyID") });
+			setupFloatingBox(simplemde);"
+</todo>
+

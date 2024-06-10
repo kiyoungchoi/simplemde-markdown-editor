@@ -13418,6 +13418,7 @@ function toggleFullScreen(editor) {
 	var sidebyside = cm.getWrapperElement().nextSibling;
 	if (/editor-preview-active-side/.test(sidebyside.className))
 		toggleSideBySide(editor);
+
 }
 
 
@@ -13866,6 +13867,7 @@ function undo(editor) {
 	var cm = editor.codemirror;
 	cm.undo();
 	cm.focus();
+	console.log('undo test')
 }
 
 
@@ -13980,6 +13982,154 @@ function togglePreview(editor) {
 	var sidebyside = cm.getWrapperElement().nextSibling;
 	if (/editor-preview-active-side/.test(sidebyside.className))
 		toggleSideBySide(editor);
+}
+
+// new feature
+
+// Function to close the box
+function closeBox() {
+    var box = document.getElementById('floating-box');
+    if (box) {
+        box.style.display = 'none';
+    }
+}
+
+/**
+ * Create a floating box with buttons when text is selected.
+ */
+function createFloatingBox(editor) {
+    var box = document.createElement('div');
+    box.id = 'floating-box';
+    box.style.position = 'absolute';
+    box.style.zIndex = '100';
+    box.style.display = 'none'; // Initially hidden
+    box.style.padding = '5px 10px';
+    box.style.background = '#333'; // Dark background
+    box.style.color = 'white'; // White text
+    box.style.border = '1px solid #555'; // Dark border
+    box.style.borderRadius = '4px'; // Rounded corners
+    box.style.boxShadow = '0 2px 5px rgba(0, 0, 0, 0.2)'; // Shadow for depth
+    box.style.fontFamily = 'Arial, sans-serif'; // Font style
+    box.style.fontSize = '14px'; // Font size
+
+    // Add "Add to Chat" button
+    var addToChatButton = document.createElement('button');
+    addToChatButton.innerHTML = 'Add to Chat';
+    addToChatButton.style.color = 'white'; // White text
+    addToChatButton.style.background = 'transparent'; // Transparent background
+    addToChatButton.style.border = 'none'; // No border
+    addToChatButton.style.marginRight = '10px'; // Space between buttons
+    addToChatButton.style.cursor = 'pointer'; // Pointer cursor
+    addToChatButton.style.fontSize = '14px'; // Font size
+    addToChatButton.style.transition = 'color 0.3s'; // Smooth transition for hover effect
+    addToChatButton.onmouseover = function () {
+        addToChatButton.style.color = '#ddd'; // Lighter color on hover
+    };
+    addToChatButton.onmouseout = function () {
+        addToChatButton.style.color = 'white'; // Original color when not hovering
+    };
+    addToChatButton.onclick = function () {
+        console.log('Add to Chat clicked');
+    };
+    box.appendChild(addToChatButton);
+
+    // Add "Edit" button
+    var editButton = document.createElement('button');
+    editButton.innerHTML = 'Edit';
+    editButton.style.color = 'white'; // White text
+    editButton.style.background = 'transparent'; // Transparent background
+    editButton.style.border = 'none'; // No border
+    editButton.style.cursor = 'pointer'; // Pointer cursor
+    editButton.style.fontSize = '14px'; // Font size
+    editButton.style.transition = 'color 0.3s'; // Smooth transition for hover effect
+    editButton.onmouseover = function () {
+        editButton.style.color = '#ddd'; // Lighter color on hover
+    };
+    editButton.onmouseout = function () {
+        editButton.style.color = 'white'; // Original color when not hovering
+    };
+    editButton.onclick = function () {
+        // Change the content of the box to match the image
+        box.innerHTML = `
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+                <input type="text" placeholder="Editing instructions... (↑ for history, @ for code / documentation)" style="width: 100%; border: none; background: transparent; color: white; font-size: 12px;" />
+                <button style="color: white; background: transparent; border: none; cursor: pointer; font-size: 14px;" id="close-button">✕</button>
+            </div>
+            <div style="margin-top: 5px; font-size: 12px; color: #aaa;">
+                <span>undefined to close</span>
+                <span style="float: right;">gpt-4.0 ⌘K to toggle</span>
+            </div>
+        `;
+        box.style.padding = '10px'; // Adjust padding for new content
+		box.style.width = '520px';
+
+        // Add event listener to the close button
+        document.getElementById('close-button').onclick = closeBox;
+
+		let currentTopPosition = window.getComputedStyle(document.getElementById('floating-box')).top;
+		currentTopPosition = parseInt(currentTopPosition.match(/\d+/)[0]); // Extract only the numeric value
+
+        // Reposition the box
+        //var coords = cm.cursorCoords(cm.getCursor(), 'window');
+        var coords = 0;
+        var boxHeight = box.offsetHeight;
+
+        var topPosition = coords.top - boxHeight - 10; // 10px space above the cursor
+		// temporary fix
+		topPosition = currentTopPosition - 30;
+
+        // Ensure the box does not go out of the viewport
+        if (topPosition < 0) {
+            topPosition = coords.bottom + 10; // Position below the cursor if not enough space above
+        }
+
+
+        box.style.left = coords.left + 'px';
+        box.style.top = topPosition + 'px';
+
+    };
+    box.appendChild(editButton);
+
+    // Append the floating box to the body
+    document.body.appendChild(box);
+
+    return box;
+}
+
+
+/**
+ * Setup event listeners to show/hide the floating box based on text selection.
+ */
+function setupFloatingBox(editor) {
+    var cm = editor.codemirror;
+    var floatingBox = createFloatingBox(editor);
+
+    cm.on('cursorActivity', function () {
+        console.log('check act');
+        var cursor = cm.getCursor();
+        var coords = cm.cursorCoords(cursor, 'window');
+
+        if (cm.somethingSelected()) {
+            // Calculate the position above the selected text
+            var boxHeight = floatingBox.offsetHeight;
+            var topPosition = coords.top - boxHeight - 10; // 10px space above the cursor
+
+            // Ensure the box does not go out of the viewport
+            if (topPosition < 0) {
+                topPosition = coords.bottom + 10; // Position below the cursor if not enough space above
+            }
+
+            floatingBox.style.left = coords.left + 'px';
+            floatingBox.style.top = topPosition + 'px';
+            floatingBox.style.display = 'block';
+
+            // Get the selected text value
+            var selectedText = cm.getSelection();
+            console.log('Selected text:', selectedText);
+        } else {
+            floatingBox.style.display = 'none';
+        }
+    });
 }
 
 function _replaceSelection(cm, active, startEnd, url) {
@@ -14261,6 +14411,15 @@ function wordCount(data) {
 }
 
 var toolbarBuiltInButtons = {
+	"console" : {
+		name : "console",
+		action: function customF(){
+			console.log('test');
+		},
+		className: 'fa fa-check-circle',
+		title: 'console',
+		default: true
+	},
 	"bold": {
 		name: "bold",
 		action: toggleBold,
@@ -14462,8 +14621,6 @@ function SimpleMDE(options) {
 	// Used later to refer to it"s parent
 	options.parent = this;
 
-	console.log('finally it works again');
-
 	// Check if Font Awesome needs to be auto downloaded
 	var autoDownloadFA = true;
 
@@ -14519,6 +14676,7 @@ function SimpleMDE(options) {
 				}
 			}
 		}
+
 	}
 
 
@@ -15219,6 +15377,15 @@ SimpleMDE.prototype.toTextArea = function () {
 	}
 };
 
+SimpleMDE.prototype.setupFloatingBox = function () {
+	setupFloatingBox(this);
+}
+
 module.exports = SimpleMDE;
+
+console.log('here')
+// Example usage in the initialization of SimpleMDE
+var simplemde = new SimpleMDE({ element: document.getElementById("MyID") });
+setupFloatingBox(simplemde);
 },{"./codemirror/tablist":14,"codemirror":8,"codemirror-spell-checker":2,"codemirror/addon/display/fullscreen.js":3,"codemirror/addon/display/placeholder.js":4,"codemirror/addon/edit/continuelist.js":5,"codemirror/addon/mode/overlay.js":6,"codemirror/addon/selection/mark-selection.js":7,"codemirror/mode/gfm/gfm.js":9,"codemirror/mode/markdown/markdown.js":10,"codemirror/mode/xml/xml.js":12}]},{},[15])(15)
 });
