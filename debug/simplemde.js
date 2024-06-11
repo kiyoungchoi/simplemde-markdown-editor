@@ -15434,9 +15434,8 @@ SimpleMDE.prototype.setupFloatingBox = function () {
 
 module.exports = SimpleMDE;
 
-console.log('here')
 // Example usage in the initialization of SimpleMDE
-var simplemde = new SimpleMDE({ element: document.getElementById("MyID") });
-setupFloatingBox(simplemde);
+// var simplemde = new SimpleMDE({ element: document.getElementById("MyID") });
+// setupFloatingBox(simplemde);
 },{"./codemirror/tablist":14,"codemirror":8,"codemirror-spell-checker":2,"codemirror/addon/display/fullscreen.js":3,"codemirror/addon/display/placeholder.js":4,"codemirror/addon/edit/continuelist.js":5,"codemirror/addon/mode/overlay.js":6,"codemirror/addon/selection/mark-selection.js":7,"codemirror/mode/gfm/gfm.js":9,"codemirror/mode/markdown/markdown.js":10,"codemirror/mode/xml/xml.js":12}]},{},[15])(15)
 });

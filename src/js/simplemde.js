@@ -2240,7 +2240,6 @@ SimpleMDE.prototype.setupFloatingBox = function () {
 
 module.exports = SimpleMDE;
 
-console.log('here')
 // Example usage in the initialization of SimpleMDE
-var simplemde = new SimpleMDE({ element: document.getElementById("MyID") });
-setupFloatingBox(simplemde);
+// var simplemde = new SimpleMDE({ element: document.getElementById("MyID") });
+// setupFloatingBox(simplemde);
