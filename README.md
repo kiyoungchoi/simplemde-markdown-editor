@@ -332,12 +332,14 @@ CodeMirror is the backbone of the project and parses much of the Markdown syntax
 
 
 <todo>
-	add edit box into body
-		it is also for edit button at first in the box
-	change for more detail box design.
-		select box for model
+	[tmp done]add edit box into body
+		is there other way?
 	change function applied, not init 
 		need to remove "var simplemde = new SimpleMDE({ element: document.getElementById("MyID") });
 			setupFloatingBox(simplemde);"
+		it is also for edit button at first in the box
+	change for more detail box design.
+		select box for model
+	
 </todo>
 

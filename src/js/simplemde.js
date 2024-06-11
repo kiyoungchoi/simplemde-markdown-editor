@@ -800,6 +800,17 @@ function closeBox() {
     }
 }
 
+function moveLine(cm, fromLine, toLine) {
+    // 특정 라인의 텍스트를 가져옵니다.
+    var text = cm.getLine(fromLine);
+
+    // 해당 라인의 텍스트를 삭제합니다.
+    cm.replaceRange("", { line: fromLine, ch: 0 }, { line: fromLine, ch: text.length });
+
+    // 새로운 라인에 텍스트를 삽입합니다.
+    cm.replaceRange(text, { line: toLine, ch: 0 });
+}
+
 /**
  * Create a floating box with buttons when text is selected.
  */
@@ -851,49 +862,90 @@ function createFloatingBox(editor) {
     editButton.onmouseover = function () {
         editButton.style.color = '#ddd'; // Lighter color on hover
     };
+
     editButton.onmouseout = function () {
         editButton.style.color = 'white'; // Original color when not hovering
     };
+
     editButton.onclick = function () {
-        // Change the content of the box to match the image
-        box.innerHTML = `
-            <div style="display: flex; justify-content: space-between; align-items: center;">
-                <input type="text" placeholder="Editing instructions... (↑ for history, @ for code / documentation)" style="width: 100%; border: none; background: transparent; color: white; font-size: 12px;" />
-                <button style="color: white; background: transparent; border: none; cursor: pointer; font-size: 14px;" id="close-button">✕</button>
-            </div>
-            <div style="margin-top: 5px; font-size: 12px; color: #aaa;">
-                <span>undefined to close</span>
-                <span style="float: right;">gpt-4.0 ⌘K to toggle</span>
-            </div>
-        `;
-        box.style.padding = '10px'; // Adjust padding for new content
-		box.style.width = '520px';
-
-        // Add event listener to the close button
-        document.getElementById('close-button').onclick = closeBox;
-
-		let currentTopPosition = window.getComputedStyle(document.getElementById('floating-box')).top;
-		currentTopPosition = parseInt(currentTopPosition.match(/\d+/)[0]); // Extract only the numeric value
-
-        // Reposition the box
-        //var coords = cm.cursorCoords(cm.getCursor(), 'window');
-        var coords = 0;
-        var boxHeight = box.offsetHeight;
-
-        var topPosition = coords.top - boxHeight - 10; // 10px space above the cursor
-		// temporary fix
-		topPosition = currentTopPosition - 30;
-
-        // Ensure the box does not go out of the viewport
-        if (topPosition < 0) {
-            topPosition = coords.bottom + 10; // Position below the cursor if not enough space above
-        }
+		var cm = editor.codemirror;
+		var cursor = cm.getCursor("start"); // 선택한 텍스트의 시작 위치를 가져옵니다.
+		var coords = cm.charCoords(cursor, "window"); // 해당 커서의 좌표를 가져옵니다.
+		var line = cursor.line; // 선택한 텍스트의 라인 번호를 가져옵니다.
+		console.log('curious',cm);
+		//moveLine(cm, line, line + 3);
 
 
-        box.style.left = coords.left + 'px';
-        box.style.top = topPosition + 'px';
+		var fromLine = line;
+		var lastLine = cm.lineCount(); // 전체 라인 수를 가져옵니다.
+		// for (var i = lastLine-1; i >= fromLine; i--) {
+		// 	var text = cm.getLine(i);
+		// 	cm.replaceRange("", { line: i, ch: 0 }, { line: i, ch: text.length });
+		// 	cm.replaceRange(text, { line: i + 3, ch: 0 });
+		// }
+		// // 선택한 라인에 빈 줄을 추가합니다.
+		cm.replaceRange("\n\n\n\n", { line: fromLine, ch: 0 });
 
-    };
+		
+	
+		// 박스의 새로운 내용을 설정합니다.
+		box.innerHTML = `
+			<div style="display: flex; justify-content: space-between; align-items: center;">
+				<input type="text" placeholder="Editing instructions... (↑ for history, @ for code / documentation)" style="width: 100%; border: none; background: transparent; color: white; font-size: 12px;" />
+				<button style="color: white; background: transparent; border: none; cursor: pointer; font-size: 14px;" id="close-button" data-line="${line}">✕</button>
+			</div>
+			<div style="margin-top: 5px; font-size: 12px; color: #aaa;">
+				<span>undefined to close</span>
+				<span style="float: right;">gpt-4.0 ⌘K to toggle</span>
+			</div>
+		`;
+
+		box.style.padding = '10px'; // 새로운 내용에 맞게 패딩을 조정합니다.
+		box.style.width = '520px'; // 박스의 너비를 설정합니다.
+	
+		// 선택한 텍스트의 첫 번째 라인의 위쪽에 박스를 배치합니다.
+		var firstLineCoords = cm.charCoords({ line: line+4, ch: 0 }, "window");
+	
+		var topPosition = firstLineCoords.top - box.offsetHeight - 10; // 첫 번째 라인의 위쪽에 박스를 배치합니다.
+	
+		// 박스가 화면 밖으로 나가지 않도록 조정합니다.
+		if (topPosition < 0) {
+			topPosition = firstLineCoords.bottom + 10; // 위쪽 공간이 부족할 경우 아래쪽에 위치시킵니다.
+		}
+	
+		box.style.left = firstLineCoords.left + 'px'; // 박스의 왼쪽 위치를 설정합니다.
+		box.style.top = topPosition + 'px'; // 박스의 상단 위치를 설정합니다.
+		box.style.display = 'block'; // 박스를 보이게 합니다.
+	
+		// 닫기 버튼에 이벤트 리스너를 추가합니다.
+		document.getElementById('close-button').onclick = function() {
+			var fromLine = this.getAttribute('data-line'); // data-line 속성에서 라인 번호를 가져옵니다.
+			// console.log(line,'line');
+			var cm = editor.codemirror; // CodeMirror 인스턴스를 가져옵니다.
+			var toLine = fromLine + 4;
+			var i = 1
+			cm.replaceRange("", { line: i, ch: 0 }, { line: i + 4, ch: 0 });
+			// var fromLine = parseInt(line); // 시작 라인
+			// var toLine = fromLine + 3; // 빈 줄이 추가된 마지막 라인
+		
+			// // fromLine부터 toLine까지 빈 줄을 제거합니다.
+			// for (var i = fromLine; i <= toLine; i++) {
+			// 	cm.replaceRange("", {line: i, ch: 0}, {line: i, ch: cm.getLine(i).length});
+			// }
+
+			// for (var i = fromLine; i < toLine; i++) {
+			// 	var lineContent = cm.getLine(i);
+			// 	console.log(lineContent,'lineContent');
+			// 	if (lineContent.trim() === "") {
+			// 		cm.replaceRange("", { line: i, ch: 0 }, { line: i + 1, ch: 0 });
+			// 		toLine--; // 줄이 삭제되면 전체 라인 수가 줄어들기 때문에 toLine을 감소시킵니다.
+			// 		i--; // 현재 라인을 다시 검사하기 위해 i를 감소시킵니다.
+			// 	}
+			// }
+
+			box.style.display = 'none'; // 닫기 버튼을 클릭하면 박스를 숨깁니다.
+		};
+	};
     box.appendChild(editButton);
 
     // Append the floating box to the body
