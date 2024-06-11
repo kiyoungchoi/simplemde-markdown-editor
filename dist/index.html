@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>SimpleMDE Markdown Editor Local Test</title>
+    <link rel="stylesheet" href="./simplemde.min.css">
+    <style>
+        .CodeMirror, .CodeMirror-scroll {
+            min-height: 200px;
+        }
+    </style>
+</head>
+<body>
+    <div>let's start</div>
+    <textarea class="simeplemde" id="MyID"></textarea>
+    <script src="./simplemde.min.js"></script>
+    <script>
+        var simplemde = new SimpleMDE({ element: document.getElementById("MyID") });
+        simplemde.setupFloatingBox();
+    </script>
+</body>
+</html>

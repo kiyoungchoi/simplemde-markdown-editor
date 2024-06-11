@@ -20,26 +20,29 @@
   "bugs": {
     "url": "https://github.com/NextStepWebs/simplemde-markdown-editor/issues"
   },
+  "scripts": {
+    "dev": "gulp serve"
+  },
   "dependencies": {
-    "codemirror": "*",
-    "codemirror-spell-checker": "*",
-    "marked": "*"
+    "codemirror": "^5.65.16",
+    "codemirror-spell-checker": "*"
   },
   "devDependencies": {
+    "browser-sync": "^3.0.2",
     "browserify": "*",
     "debug": "*",
     "eslint": "*",
     "gulp": "*",
+    "gulp-clean-css": "*",
     "gulp-concat": "*",
     "gulp-debug": "*",
     "gulp-eslint": "*",
     "gulp-header": "*",
     "gulp-jsbeautifier": "*",
-    "gulp-clean-css": "*",
     "gulp-rename": "*",
     "gulp-uglify": "*",
-    "vinyl-source-stream": "*",
-    "vinyl-buffer": "*"
+    "vinyl-buffer": "*",
+    "vinyl-source-stream": "*"
   },
   "repository": {
     "type": "git",
