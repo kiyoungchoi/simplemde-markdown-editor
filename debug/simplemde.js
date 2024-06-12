@@ -14023,6 +14023,20 @@ function createFloatingBox(editor) {
     box.style.fontFamily = 'Arial, sans-serif'; // Font style
     box.style.fontSize = '14px'; // Font size
 
+	var box2 = document.createElement('div');
+    box2.id = 'floating-box2';
+    box2.style.position = 'absolute';
+    box2.style.zIndex = '100';
+    box2.style.display = 'none'; // Initially hidden
+    box2.style.padding = '5px 10px';
+    box2.style.background = '#333'; // Dark background
+    box2.style.color = 'white'; // White text
+    box2.style.border = '1px solid #555'; // Dark border
+    box2.style.borderRadius = '4px'; // Rounded corners
+    box2.style.boxShadow = '0 2px 5px rgba(0, 0, 0, 0.2)'; // Shadow for depth
+    box2.style.fontFamily = 'Arial, sans-serif'; // Font style
+    box2.style.fontSize = '14px'; // Font size
+
     // Add "Add to Chat" button
     var addToChatButton = document.createElement('button');
     addToChatButton.innerHTML = 'Add to Chat';
@@ -14062,6 +14076,15 @@ function createFloatingBox(editor) {
     };
 
     editButton.onclick = function () {
+		// here is the point, 
+		// we hide box1 
+		// and add box2
+		console.log(box.style.display,'box.style.display in before');
+		document.querySelector('#floating-box').style.display = 'none';
+		box.style.display = 'none';
+		console.log(box.style.display,'box.style.display in after');
+		box2.style.display = 'block'; // 박스를 보이게 합니다.
+		document.body.appendChild(box2);
 		var cm = editor.codemirror;
 		var cursor = cm.getCursor("start"); // 선택한 텍스트의 시작 위치를 가져옵니다.
 		var coords = cm.charCoords(cursor, "window"); // 해당 커서의 좌표를 가져옵니다.
@@ -14083,7 +14106,7 @@ function createFloatingBox(editor) {
 		
 	
 		// 박스의 새로운 내용을 설정합니다.
-		box.innerHTML = `
+		box2.innerHTML = `
 			<div style="display: flex; justify-content: space-between; align-items: center;">
 				<input type="text" placeholder="Editing instructions... (↑ for history, @ for code / documentation)" style="width: 100%; border: none; background: transparent; color: white; font-size: 12px;" />
 				<button style="color: white; background: transparent; border: none; cursor: pointer; font-size: 14px;" id="close-button" data-line="${line}">✕</button>
@@ -14094,22 +14117,27 @@ function createFloatingBox(editor) {
 			</div>
 		`;
 
-		box.style.padding = '10px'; // 새로운 내용에 맞게 패딩을 조정합니다.
-		box.style.width = '520px'; // 박스의 너비를 설정합니다.
+		box2.style.padding = '10px'; // 새로운 내용에 맞게 패딩을 조정합니다.
+		box2.style.width = '520px'; // 박스의 너비를 설정합니다.
 	
 		// 선택한 텍스트의 첫 번째 라인의 위쪽에 박스를 배치합니다.
 		var firstLineCoords = cm.charCoords({ line: line+4, ch: 0 }, "window");
 	
-		var topPosition = firstLineCoords.top - box.offsetHeight - 10; // 첫 번째 라인의 위쪽에 박스를 배치합니다.
+		//var topPosition = firstLineCoords.top - box2.offsetHeight - 10; // 첫 번째 라인의 위쪽에 박스를 배치합니다.
+		var topPosition = firstLineCoords.top - box2.offsetHeight - 10; //temp 
 	
 		// 박스가 화면 밖으로 나가지 않도록 조정합니다.
 		if (topPosition < 0) {
 			topPosition = firstLineCoords.bottom + 10; // 위쪽 공간이 부족할 경우 아래쪽에 위치시킵니다.
 		}
+
+		console.log(firstLineCoords,'box2 firstLineCoords');
+		console.log(box2.offstHeight,'box2.offsetHeight');
+		console.log(box2,'box2');
+		console.log(topPosition,'topPosition');
 	
-		box.style.left = firstLineCoords.left + 'px'; // 박스의 왼쪽 위치를 설정합니다.
-		box.style.top = topPosition + 'px'; // 박스의 상단 위치를 설정합니다.
-		box.style.display = 'block'; // 박스를 보이게 합니다.
+		box2.style.left = firstLineCoords.left + 'px'; // 박스의 왼쪽 위치를 설정합니다.
+		box2.style.top = topPosition + 'px'; // 박스의 상단 위치를 설정합니다.
 	
 		// 닫기 버튼에 이벤트 리스너를 추가합니다.
 		document.getElementById('close-button').onclick = function() {
@@ -14137,13 +14165,18 @@ function createFloatingBox(editor) {
 			// 	}
 			// }
 
-			box.style.display = 'none'; // 닫기 버튼을 클릭하면 박스를 숨깁니다.
+			box2.style.display = 'none'; // 닫기 버튼을 클릭하면 박스를 숨깁니다.
 		};
+		
 	};
     box.appendChild(editButton);
 
     // Append the floating box to the body
-    document.body.appendChild(box);
+	console.log(!document.body.contains(box))
+    if (!document.body.contains(box)) {
+        document.body.appendChild(box);
+    }
+
 
     return box;
 }
@@ -14154,9 +14187,12 @@ function createFloatingBox(editor) {
  */
 function setupFloatingBox(editor) {
     var cm = editor.codemirror;
-    var floatingBox = createFloatingBox(editor);
+	console.log('curios', cm);
+	var floatingBox = createFloatingBox(editor);
 
-    cm.on('cursorActivity', function () {
+	//cursorActivity
+	// mousedown not work
+    cm.on('cursorActivity', function (cm, ev) {
         var cursor = cm.getCursor();
         var coords = cm.cursorCoords(cursor, 'window');
 
@@ -14172,12 +14208,23 @@ function setupFloatingBox(editor) {
 
             floatingBox.style.left = coords.left + 'px';
             floatingBox.style.top = topPosition + 'px';
-            floatingBox.style.display = 'block';
+
+			let box2 = document.querySelector('#floating-box2');
+            if (box2 && (!box2.style.display || box2.style.display === 'none')) {
+                floatingBox.style.display = 'block';
+            } else {
+                floatingBox.style.display = 'none';
+            }
+
+			if (!box2) {
+                floatingBox.style.display = 'block';
+			}
 
             // Get the selected text value
             var selectedText = cm.getSelection();
             console.log('Selected text:', selectedText);
-        } else {
+        } 
+		else {
             floatingBox.style.display = 'none';
         }
     });
