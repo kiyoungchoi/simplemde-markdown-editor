@@ -105,7 +105,7 @@ function serve() {
 	//gulp.watch("src/**/*.js", gulp.series(prettifyJs, lint, browserifyDebug, browserifyTask, scripts)).on('change', browserSync.reload);
 	gulp.watch("src/js/simplemde.js", gulp.series(lint, browserifyDebug, browserifyTask, scripts))
 	gulp.watch("src/**/*.css", gulp.series(prettifyCss, styles));
-	gulp.watch(["dist/**/*"]).on('change', browserSync.reload);
+	//gulp.watch(["dist/**/*"]).on('change', browserSync.reload);
 }
 
 gulp.task("prettify-js", prettifyJs);
