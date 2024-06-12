@@ -885,12 +885,10 @@ function createFloatingBox(editor) {
 		// here is the point, 
 		// we hide box1 
 		// and add box2
-		console.log(box.style.display,'box.style.display in before');
-		document.querySelector('#floating-box').style.display = 'none';
 		box.style.display = 'none';
-		console.log(box.style.display,'box.style.display in after');
 		box2.style.display = 'block'; // 박스를 보이게 합니다.
 		document.body.appendChild(box2);
+
 		var cm = editor.codemirror;
 		var cursor = cm.getCursor("start"); // 선택한 텍스트의 시작 위치를 가져옵니다.
 		var coords = cm.charCoords(cursor, "window"); // 해당 커서의 좌표를 가져옵니다.
@@ -908,7 +906,6 @@ function createFloatingBox(editor) {
 		// }
 		// // 선택한 라인에 빈 줄을 추가합니다.
 		cm.replaceRange("\n\n\n\n", { line: fromLine, ch: 0 });
-
 		
 	
 		// 박스의 새로운 내용을 설정합니다.
@@ -936,23 +933,19 @@ function createFloatingBox(editor) {
 		if (topPosition < 0) {
 			topPosition = firstLineCoords.bottom + 10; // 위쪽 공간이 부족할 경우 아래쪽에 위치시킵니다.
 		}
-
-		console.log(firstLineCoords,'box2 firstLineCoords');
-		console.log(box2.offstHeight,'box2.offsetHeight');
-		console.log(box2,'box2');
-		console.log(topPosition,'topPosition');
 	
 		box2.style.left = firstLineCoords.left + 'px'; // 박스의 왼쪽 위치를 설정합니다.
 		box2.style.top = topPosition + 'px'; // 박스의 상단 위치를 설정합니다.
 	
 		// 닫기 버튼에 이벤트 리스너를 추가합니다.
 		document.getElementById('close-button').onclick = function() {
-			var fromLine = this.getAttribute('data-line'); // data-line 속성에서 라인 번호를 가져옵니다.
-			// console.log(line,'line');
+			var fromLine = parseInt(this.getAttribute('data-line')); // data-line 속성에서 라인 번호를 가져옵니다.
+			console.log(fromLine,'fromLine');
+
 			var cm = editor.codemirror; // CodeMirror 인스턴스를 가져옵니다.
-			var toLine = fromLine + 4;
-			var i = 1
-			cm.replaceRange("", { line: i, ch: 0 }, { line: i + 4, ch: 0 });
+			var toLine = parseInt(fromLine) + 4;
+			console.log(toLine,'toLine');
+			cm.replaceRange("", { line: fromLine, ch: 0 }, { line: toLine, ch: 0 });
 			// var fromLine = parseInt(line); // 시작 라인
 			// var toLine = fromLine + 3; // 빈 줄이 추가된 마지막 라인
 		
@@ -1028,7 +1021,7 @@ function setupFloatingBox(editor) {
 
             // Get the selected text value
             var selectedText = cm.getSelection();
-            console.log('Selected text:', selectedText);
+            //console.log('Selected text:', selectedText);
         } 
 		else {
             floatingBox.style.display = 'none';
