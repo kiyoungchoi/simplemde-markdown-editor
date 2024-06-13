@@ -811,80 +811,81 @@ function moveLine(cm, fromLine, toLine) {
     cm.replaceRange(text, { line: toLine, ch: 0 });
 }
 
-/**
- * Create a floating box with buttons when text is selected.
- */
-function createFloatingBox(editor) {
+
+
+function createFloatingBoxElement(id='floating-box') {
     var box = document.createElement('div');
-    box.id = 'floating-box';
-    box.style.position = 'absolute';
-    box.style.zIndex = '100';
-    box.style.display = 'none'; // Initially hidden
-    box.style.padding = '5px 10px';
-    box.style.background = '#333'; // Dark background
-    box.style.color = 'white'; // White text
-    box.style.border = '1px solid #555'; // Dark border
-    box.style.borderRadius = '4px'; // Rounded corners
-    box.style.boxShadow = '0 2px 5px rgba(0, 0, 0, 0.2)'; // Shadow for depth
-    box.style.fontFamily = 'Arial, sans-serif'; // Font style
-    box.style.fontSize = '14px'; // Font size
+    box.id = id;
+    // Object.assign(box.style, {
+    //     position: 'absolute',
+    //     zIndex: '100',
+    //     display: 'none', // Initially hidden
+    //     padding: '5px 10px',
+    //     background: '#333', // Dark background
+    //     color: 'white', // White text
+    //     border: '1px solid #555', // Dark border
+    //     borderRadius: '4px', // Rounded corners
+    //     boxShadow: '0 2px 5px rgba(0, 0, 0, 0.2)', // Shadow for depth
+    //     fontFamily: 'Arial, sans-serif', // Font style
+    //     fontSize: '14px' // Font size
+    // });
+	box.style.cssText = `
+        position: absolute;
+        z-index: 100;
+        display: none;
+        padding: 5px 10px;
+        background: #333;
+        color: white;
+        border: 1px solid #555;
+        border-radius: 4px;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+        font-family: Arial, sans-serif;
+        font-size: 14px;
+    `;
 
-	var box2 = document.createElement('div');
-    box2.id = 'floating-box2';
-    box2.style.position = 'absolute';
-    box2.style.zIndex = '100';
-    box2.style.display = 'none'; // Initially hidden
-    box2.style.padding = '5px 10px';
-    box2.style.background = '#333'; // Dark background
-    box2.style.color = 'white'; // White text
-    box2.style.border = '1px solid #555'; // Dark border
-    box2.style.borderRadius = '4px'; // Rounded corners
-    box2.style.boxShadow = '0 2px 5px rgba(0, 0, 0, 0.2)'; // Shadow for depth
-    box2.style.fontFamily = 'Arial, sans-serif'; // Font style
-    box2.style.fontSize = '14px'; // Font size
+    return box;
+}
 
-    // Add "Add to Chat" button
-    var addToChatButton = document.createElement('button');
-    addToChatButton.innerHTML = 'Add to Chat';
-    addToChatButton.style.color = 'white'; // White text
-    addToChatButton.style.background = 'transparent'; // Transparent background
-    addToChatButton.style.border = 'none'; // No border
-    addToChatButton.style.marginRight = '10px'; // Space between buttons
-    addToChatButton.style.cursor = 'pointer'; // Pointer cursor
-    addToChatButton.style.fontSize = '14px'; // Font size
-    addToChatButton.style.transition = 'color 0.3s'; // Smooth transition for hover effect
-    addToChatButton.onmouseover = function () {
-        addToChatButton.style.color = '#ddd'; // Lighter color on hover
-    };
-    addToChatButton.onmouseout = function () {
-        addToChatButton.style.color = 'white'; // Original color when not hovering
-    };
-    addToChatButton.onclick = function () {
-        console.log('Add to Chat clicked');
-    };
-    box.appendChild(addToChatButton);
+function createButton(text, handleClick=null) {
+    var button = document.createElement('button');
+    button.textContent = text;
+    button.style.cssText = `
+        color: white;
+        background: transparent;
+        border: none;
+        margin-right: 10px;
+        cursor: pointer;
+        font-size: 14px;
+        transition: color 0.3s;
+    `;
 
-    // Add "Edit" button
-    var editButton = document.createElement('button');
-    editButton.innerHTML = 'Edit';
-    editButton.style.color = 'white'; // White text
-    editButton.style.background = 'transparent'; // Transparent background
-    editButton.style.border = 'none'; // No border
-    editButton.style.cursor = 'pointer'; // Pointer cursor
-    editButton.style.fontSize = '14px'; // Font size
-    editButton.style.transition = 'color 0.3s'; // Smooth transition for hover effect
-    editButton.onmouseover = function () {
-        editButton.style.color = '#ddd'; // Lighter color on hover
-    };
+    function handleMouseOver() {
+        button.style.color = '#ddd';
+    }
 
-    editButton.onmouseout = function () {
-        editButton.style.color = 'white'; // Original color when not hovering
-    };
+    function handleMouseOut() {
+        button.style.color = 'white';
+    }
 
-    editButton.onclick = function () {
-		// here is the point, 
-		// we hide box1 
-		// and add box2
+    button.addEventListener('mouseover', handleMouseOver);
+    button.addEventListener('mouseout', handleMouseOut);
+	if (handleClick) {
+        button.addEventListener('click', handleClick);
+    }
+    
+    return button;
+}
+
+function createAddToChatButton(editor) {
+    return createButton('Add to Chat');
+}
+
+function createEditButton(editor) {
+    function handleClick() {
+
+		var box = editor.floatingBox;
+        var box2 = editor.floatingBox2;
+        // ... editButton의 onclick 함수 내용 ...
 		box.style.display = 'none';
 		box2.style.display = 'block'; // 박스를 보이게 합니다.
 		document.body.appendChild(box2);
@@ -899,15 +900,8 @@ function createFloatingBox(editor) {
 
 		var fromLine = line;
 		var lastLine = cm.lineCount(); // 전체 라인 수를 가져옵니다.
-		// for (var i = lastLine-1; i >= fromLine; i--) {
-		// 	var text = cm.getLine(i);
-		// 	cm.replaceRange("", { line: i, ch: 0 }, { line: i, ch: text.length });
-		// 	cm.replaceRange(text, { line: i + 3, ch: 0 });
-		// }
-		// // 선택한 라인에 빈 줄을 추가합니다.
 		cm.replaceRange("\n\n\n\n", { line: fromLine, ch: 0 });
 		
-	
 		// 박스의 새로운 내용을 설정합니다.
 		box2.innerHTML = `
 			<div style="display: flex; justify-content: space-between; align-items: center;">
@@ -946,28 +940,28 @@ function createFloatingBox(editor) {
 			var toLine = parseInt(fromLine) + 4;
 			console.log(toLine,'toLine');
 			cm.replaceRange("", { line: fromLine, ch: 0 }, { line: toLine, ch: 0 });
-			// var fromLine = parseInt(line); // 시작 라인
-			// var toLine = fromLine + 3; // 빈 줄이 추가된 마지막 라인
-		
-			// // fromLine부터 toLine까지 빈 줄을 제거합니다.
-			// for (var i = fromLine; i <= toLine; i++) {
-			// 	cm.replaceRange("", {line: i, ch: 0}, {line: i, ch: cm.getLine(i).length});
-			// }
-
-			// for (var i = fromLine; i < toLine; i++) {
-			// 	var lineContent = cm.getLine(i);
-			// 	console.log(lineContent,'lineContent');
-			// 	if (lineContent.trim() === "") {
-			// 		cm.replaceRange("", { line: i, ch: 0 }, { line: i + 1, ch: 0 });
-			// 		toLine--; // 줄이 삭제되면 전체 라인 수가 줄어들기 때문에 toLine을 감소시킵니다.
-			// 		i--; // 현재 라인을 다시 검사하기 위해 i를 감소시킵니다.
-			// 	}
-			// }
 
 			box2.style.display = 'none'; // 닫기 버튼을 클릭하면 박스를 숨깁니다.
 		};
-		
-	};
+    }
+
+    return createButton('Edit', handleClick);
+}
+
+/**
+ * Create a floating box with buttons when text is selected.
+ */
+function createFloatingBox(editor) {
+    var box = createFloatingBoxElement('floating-box');
+    var box2 = createFloatingBoxElement('floating-box2');
+
+	editor.floatingBox = box;
+    editor.floatingBox2 = box2;
+
+	var addToChatButton = createAddToChatButton();
+    box.appendChild(addToChatButton);
+
+	var editButton = createEditButton(editor, box, box2);
     box.appendChild(editButton);
 
     // Append the floating box to the body
@@ -976,10 +970,8 @@ function createFloatingBox(editor) {
         document.body.appendChild(box);
     }
 
-
     return box;
 }
-
 
 /**
  * Setup event listeners to show/hide the floating box based on text selection.
