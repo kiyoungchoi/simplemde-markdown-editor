@@ -14164,7 +14164,7 @@ function createFloatingBox(editor) {
         document.body.appendChild(box);
     }
 
-    return box;
+    return {box, box2};
 }
 
 /**
@@ -14172,18 +14172,15 @@ function createFloatingBox(editor) {
  */
 function setupFloatingBox(editor) {
     var cm = editor.codemirror;
-	console.log('curios', cm);
-	var floatingBox = createFloatingBox(editor);
+	var {box, box2} = createFloatingBox(editor);
 
-	//cursorActivity
-	// mousedown not work
     cm.on('cursorActivity', function (cm, ev) {
         var cursor = cm.getCursor();
         var coords = cm.cursorCoords(cursor, 'window');
 
         if (cm.somethingSelected()) {
             // Calculate the position above the selected text
-            var boxHeight = floatingBox.offsetHeight;
+            var boxHeight = box.offsetHeight;
             var topPosition = coords.top - boxHeight - 10; // 10px space above the cursor
 
             // Ensure the box does not go out of the viewport
@@ -14191,26 +14188,23 @@ function setupFloatingBox(editor) {
                 topPosition = coords.bottom + 10; // Position below the cursor if not enough space above
             }
 
-            floatingBox.style.left = coords.left + 'px';
-            floatingBox.style.top = topPosition + 'px';
+            box.style.left = coords.left + 'px';
+            box.style.top = topPosition + 'px';
 
-			let box2 = document.querySelector('#floating-box2');
             if (box2 && (!box2.style.display || box2.style.display === 'none')) {
-                floatingBox.style.display = 'block';
+                box.style.display = 'block';
             } else {
-                floatingBox.style.display = 'none';
+                box.style.display = 'none';
             }
 
 			if (!box2) {
-                floatingBox.style.display = 'block';
+                box.style.display = 'block';
 			}
 
-            // Get the selected text value
             var selectedText = cm.getSelection();
-            //console.log('Selected text:', selectedText);
         } 
 		else {
-            floatingBox.style.display = 'none';
+            box.style.display = 'none';
         }
     });
 }
