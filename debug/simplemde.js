@@ -14076,10 +14076,9 @@ function createAddToChatButton(editor) {
 
 function createEditButton(editor) {
     function handleClick() {
-
 		var box = editor.floatingBox;
         var box2 = editor.floatingBox2;
-        // ... editButton의 onclick 함수 내용 ...
+
 		box.style.display = 'none';
 		box2.style.display = 'block'; // 박스를 보이게 합니다.
 		document.body.appendChild(box2);
