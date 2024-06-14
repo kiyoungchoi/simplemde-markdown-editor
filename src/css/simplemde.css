@@ -327,6 +327,11 @@
     opacity: .5;
 }
 
-.CodeMirror .cm-spell-error:not(.cm-url):not(.cm-comment):not(.cm-tag):not(.cm-word) {
-    background-color: #fff !important;
+.CodeMirror .cm-null.cm-spell-error {
+    background: #fff !important;
 }
+
+.CodeMirror .cm-null.cm-spell-error.CodeMirror-selectedtext {
+    background: 0 0 !important;
+}
+
