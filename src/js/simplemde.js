@@ -954,8 +954,6 @@ function createFloatingBox(editor) {
     box.appendChild(editButton);
 
     // Append the floating box to the body
-	// this is for init every time. 
-	// console.log(!document.body.contains(box))
     if (!document.body.contains(box)) {
         document.body.appendChild(box);
     }
@@ -992,16 +990,6 @@ function setupFloatingBox(editor) {
 
             box.style.left = coords.left + 'px';
             box.style.top = topPosition + 'px';
-
-            // if (box2 && (!box2.style.display || box2.style.display === 'none')) {
-            //     box.style.display = 'block';
-            // } else {
-            //     box.style.display = 'none';
-            // }
-
-			// if (!box2) {
-            //     box.style.display = 'block';
-			// }
 			box.style.display = 'block';
 
             var selectedText = cm.getSelection();
