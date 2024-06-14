@@ -882,7 +882,6 @@ function createAddToChatButton(editor) {
 
 function createEditButton(editor) {
     function handleClick() {
-		console.log('editButton clicked');
 		var box = editor.floatingBox;
         var box2 = editor.floatingBox2;
 
@@ -893,7 +892,6 @@ function createEditButton(editor) {
 		var cursor = cm.getCursor("start"); // 선택한 텍스트의 시작 위치를 가져옵니다.
 		var coords = cm.charCoords(cursor, "window"); // 해당 커서의 좌표를 가져옵니다.
 		var line = cursor.line; // 선택한 텍스트의 라인 번호를 가져옵니다.
-		console.log('curious',cm);
 		//moveLine(cm, line, line + 3);
 
 
@@ -945,7 +943,6 @@ function createEditButton(editor) {
 
 		// 플래그 설정
         editor.isEditing = true;
-		console.log(editor.isEditing, 'isEditing in createEditButton');
 		box.style.display = 'none';
 
     }
@@ -992,14 +989,11 @@ function setupFloatingBox(editor) {
 
         if (cm.somethingSelected()) {
 
-			console.log(editor.isEditing, 'isEditing in somethingSelected before');
 			if (editor.isEditing) {
 				editor.isEditing = false; // 플래그 초기화
 				return;
 			}
 
-			console.log(editor.isEditing, 'isEditing in somethingSelected after');
-			console.log('somethingSelected')
             // Calculate the position above the selected text
             var boxHeight = box.offsetHeight;
             var topPosition = coords.top - boxHeight - 10; // 10px space above the cursor
