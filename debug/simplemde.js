@@ -14010,19 +14010,6 @@ function moveLine(cm, fromLine, toLine) {
 function createFloatingBoxElement(id='floating-box') {
     var box = document.createElement('div');
     box.id = id;
-    // Object.assign(box.style, {
-    //     position: 'absolute',
-    //     zIndex: '100',
-    //     display: 'none', // Initially hidden
-    //     padding: '5px 10px',
-    //     background: '#333', // Dark background
-    //     color: 'white', // White text
-    //     border: '1px solid #555', // Dark border
-    //     borderRadius: '4px', // Rounded corners
-    //     boxShadow: '0 2px 5px rgba(0, 0, 0, 0.2)', // Shadow for depth
-    //     fontFamily: 'Arial, sans-serif', // Font style
-    //     fontSize: '14px' // Font size
-    // });
 	box.style.cssText = `
         position: absolute;
         z-index: 100;
