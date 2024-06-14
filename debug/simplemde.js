@@ -14076,10 +14076,10 @@ function createAddToChatButton(editor) {
 
 function createEditButton(editor) {
     function handleClick() {
+		console.log('editButton clicked');
 		var box = editor.floatingBox;
         var box2 = editor.floatingBox2;
 
-		box.style.display = 'none';
 		box2.style.display = 'block'; // 박스를 보이게 합니다.
 		document.body.appendChild(box2);
 
@@ -14136,6 +14136,12 @@ function createEditButton(editor) {
 
 			box2.style.display = 'none'; // 닫기 버튼을 클릭하면 박스를 숨깁니다.
 		};
+
+		// 플래그 설정
+        editor.isEditing = true;
+		console.log(editor.isEditing, 'isEditing in createEditButton');
+		box.style.display = 'none';
+
     }
 
     return createButton('Edit', handleClick);
@@ -14154,11 +14160,12 @@ function createFloatingBox(editor) {
 	var addToChatButton = createAddToChatButton();
     box.appendChild(addToChatButton);
 
-	var editButton = createEditButton(editor, box, box2);
+	var editButton = createEditButton(editor);
     box.appendChild(editButton);
 
     // Append the floating box to the body
-	console.log(!document.body.contains(box))
+	// this is for init every time. 
+	// console.log(!document.body.contains(box))
     if (!document.body.contains(box)) {
         document.body.appendChild(box);
     }
@@ -14178,6 +14185,15 @@ function setupFloatingBox(editor) {
         var coords = cm.cursorCoords(cursor, 'window');
 
         if (cm.somethingSelected()) {
+
+			console.log(editor.isEditing, 'isEditing in somethingSelected before');
+			if (editor.isEditing) {
+				editor.isEditing = false; // 플래그 초기화
+				return;
+			}
+
+			console.log(editor.isEditing, 'isEditing in somethingSelected after');
+			console.log('somethingSelected')
             // Calculate the position above the selected text
             var boxHeight = box.offsetHeight;
             var topPosition = coords.top - boxHeight - 10; // 10px space above the cursor
@@ -14190,15 +14206,16 @@ function setupFloatingBox(editor) {
             box.style.left = coords.left + 'px';
             box.style.top = topPosition + 'px';
 
-            if (box2 && (!box2.style.display || box2.style.display === 'none')) {
-                box.style.display = 'block';
-            } else {
-                box.style.display = 'none';
-            }
+            // if (box2 && (!box2.style.display || box2.style.display === 'none')) {
+            //     box.style.display = 'block';
+            // } else {
+            //     box.style.display = 'none';
+            // }
 
-			if (!box2) {
-                box.style.display = 'block';
-			}
+			// if (!box2) {
+            //     box.style.display = 'block';
+			// }
+			box.style.display = 'block';
 
             var selectedText = cm.getSelection();
         } 
