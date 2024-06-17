@@ -869,21 +869,38 @@ function createAddToChatButton(editor) {
 
 function createEditButton(editor) {
     function handleClick() {
+
+		
+
+		// box init
 		var box = editor.floatingBox;
         var box2 = editor.floatingBox2;
 
-		box2.style.display = 'block'; // 박스를 보이게 합니다.
+		if (box2.style.display == 'block') {
+			let already = document.getElementById('close-button');
+			var fromLine = parseInt(already.getAttribute('data-line'));
+
+			var cm = editor.codemirror; // CodeMirror 인스턴스를 가져옵니다.
+			var toLine = parseInt(fromLine) + 4;
+			console.log(toLine,'toLine');
+			cm.replaceRange("", { line: fromLine, ch: 0 }, { line: toLine, ch: 0 });
+
+			box2.style.display = 'none'; // 닫기 버튼을 클릭하면 박스를 숨깁니다.
+		} else {
+			console.log('no');
+		}
+
+		// box2 open
+		box2.style.display = 'block';
 		document.body.appendChild(box2);
 
 		var cm = editor.codemirror;
 		var cursor = cm.getCursor("start"); // 선택한 텍스트의 시작 위치를 가져옵니다.
 		var coords = cm.charCoords(cursor, "window"); // 해당 커서의 좌표를 가져옵니다.
 		var line = cursor.line; // 선택한 텍스트의 라인 번호를 가져옵니다.
-		//moveLine(cm, line, line + 3);
 
 
 		var fromLine = line;
-		var lastLine = cm.lineCount(); // 전체 라인 수를 가져옵니다.
 		cm.replaceRange("\n\n\n\n", { line: fromLine, ch: 0 });
 		
 		// 박스의 새로운 내용을 설정합니다.
