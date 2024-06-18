@@ -867,88 +867,83 @@ function createAddToChatButton(editor) {
     return createButton('Add to Chat');
 }
 
+function removeEmptyLines(editor, startLine, numLines = 4) {
+    var cm = editor.codemirror;
+    var endLine = startLine + numLines;
+    cm.replaceRange("", { line: startLine, ch: 0 }, { line: endLine, ch: 0 });
+}
+
+function closeBoxIfOpen(editor, box) {
+    if (box.style.display === 'block') {
+        let closeButton = document.getElementById('close-button');
+        var sL = parseInt(closeButton.getAttribute('data-line'));
+        removeEmptyLines(editor, sL);
+        box.style.display = 'none';
+    }
+}
+
+function addEmptyLines(editor, startLine, numLines = 4) {
+	var cm = editor.codemirror;
+	cm.replaceRange("\n".repeat(numLines), { line: startLine, ch: 0 });
+}
+
 function createEditButton(editor) {
+    /**
+     * 편집 버튼을 생성합니다.
+     * @param {Object} editor - SimpleMDE 에디터 인스턴스
+     * @returns {HTMLElement} - 생성된 버튼 엘리먼트
+     */
+
     function handleClick() {
-
-		
-
-		// box init
-		var box = editor.floatingBox;
+        // box init
+        var box = editor.floatingBox;
         var box2 = editor.floatingBox2;
 
-		if (box2.style.display == 'block') {
-			let already = document.getElementById('close-button');
-			var fromLine = parseInt(already.getAttribute('data-line'));
+        if (box2.style.display === 'block') {
+			closeBoxIfOpen(editor, box2);
+        }
 
-			var cm = editor.codemirror; // CodeMirror 인스턴스를 가져옵니다.
-			var toLine = parseInt(fromLine) + 4;
-			console.log(toLine,'toLine');
-			cm.replaceRange("", { line: fromLine, ch: 0 }, { line: toLine, ch: 0 });
+        // box2 open
+        box2.style.display = 'block';
+        document.body.appendChild(box2);
 
-			box2.style.display = 'none'; // 닫기 버튼을 클릭하면 박스를 숨깁니다.
-		} else {
-			console.log('no');
-		}
+        var cm = editor.codemirror;
+        var cursor = cm.getCursor("start");
+        var sL = parseInt(cursor.line);
+		addEmptyLines(editor,sL);
+        
+        // 박스의 새로운 내용을 설정합니다.
+        box2.innerHTML = `
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+                <input type="text" placeholder="Editing instructions... (↑ for history, @ for code / documentation)" style="width: 100%; border: none; background: transparent; color: white; font-size: 12px;" />
+                <button style="color: white; background: transparent; border: none; cursor: pointer; font-size: 14px;" id="close-button" data-line="${sL}">✕</button>
+            </div>
+            <div style="margin-top: 5px; font-size: 12px; color: #aaa;">
+                <span>undefined to close</span>
+                <span style="float: right;">gpt-4.0 ⌘K to toggle</span>
+            </div>
+        `;
 
-		// box2 open
-		box2.style.display = 'block';
-		document.body.appendChild(box2);
+        box2.style.padding = '10px';
+        box2.style.width = '520px';
+    
+        var firstLineCoords = cm.charCoords({ line: sL + 4, ch: 0 }, "window");
+        var topPosition = firstLineCoords.top - box2.offsetHeight - 10;
+    
+        if (topPosition < 0) {
+            topPosition = firstLineCoords.bottom + 10;
+        }
+    
+        box2.style.left = firstLineCoords.left + 'px';
+        box2.style.top = topPosition + 'px';
+    
+        // 닫기 버튼에 이벤트 리스너를 추가합니다.
+        document.getElementById('close-button').onclick = function() {
+			closeBoxIfOpen(editor, box2);
+        };
 
-		var cm = editor.codemirror;
-		var cursor = cm.getCursor("start"); // 선택한 텍스트의 시작 위치를 가져옵니다.
-		var coords = cm.charCoords(cursor, "window"); // 해당 커서의 좌표를 가져옵니다.
-		var line = cursor.line; // 선택한 텍스트의 라인 번호를 가져옵니다.
-
-
-		var fromLine = line;
-		cm.replaceRange("\n\n\n\n", { line: fromLine, ch: 0 });
-		
-		// 박스의 새로운 내용을 설정합니다.
-		box2.innerHTML = `
-			<div style="display: flex; justify-content: space-between; align-items: center;">
-				<input type="text" placeholder="Editing instructions... (↑ for history, @ for code / documentation)" style="width: 100%; border: none; background: transparent; color: white; font-size: 12px;" />
-				<button style="color: white; background: transparent; border: none; cursor: pointer; font-size: 14px;" id="close-button" data-line="${line}">✕</button>
-			</div>
-			<div style="margin-top: 5px; font-size: 12px; color: #aaa;">
-				<span>undefined to close</span>
-				<span style="float: right;">gpt-4.0 ⌘K to toggle</span>
-			</div>
-		`;
-
-		box2.style.padding = '10px'; // 새로운 내용에 맞게 패딩을 조정합니다.
-		box2.style.width = '520px'; // 박스의 너비를 설정합니다.
-	
-		// 선택한 텍스트의 첫 번째 라인의 위쪽에 박스를 배치합니다.
-		var firstLineCoords = cm.charCoords({ line: line+4, ch: 0 }, "window");
-	
-		//var topPosition = firstLineCoords.top - box2.offsetHeight - 10; // 첫 번째 라인의 위쪽에 박스를 배치합니다.
-		var topPosition = firstLineCoords.top - box2.offsetHeight - 10; //temp 
-	
-		// 박스가 화면 밖으로 나가지 않도록 조정합니다.
-		if (topPosition < 0) {
-			topPosition = firstLineCoords.bottom + 10; // 위쪽 공간이 부족할 경우 아래쪽에 위치시킵니다.
-		}
-	
-		box2.style.left = firstLineCoords.left + 'px'; // 박스의 왼쪽 위치를 설정합니다.
-		box2.style.top = topPosition + 'px'; // 박스의 상단 위치를 설정합니다.
-	
-		// 닫기 버튼에 이벤트 리스너를 추가합니다.
-		document.getElementById('close-button').onclick = function() {
-			var fromLine = parseInt(this.getAttribute('data-line')); // data-line 속성에서 라인 번호를 가져옵니다.
-			console.log(fromLine,'fromLine');
-
-			var cm = editor.codemirror; // CodeMirror 인스턴스를 가져옵니다.
-			var toLine = parseInt(fromLine) + 4;
-			console.log(toLine,'toLine');
-			cm.replaceRange("", { line: fromLine, ch: 0 }, { line: toLine, ch: 0 });
-
-			box2.style.display = 'none'; // 닫기 버튼을 클릭하면 박스를 숨깁니다.
-		};
-
-		// 플래그 설정
         editor.isEditing = true;
-		box.style.display = 'none';
-
+        box.style.display = 'none';
     }
 
     return createButton('Edit', handleClick);
