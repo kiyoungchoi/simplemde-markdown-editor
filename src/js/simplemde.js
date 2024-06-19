@@ -887,6 +887,76 @@ function addEmptyLines(editor, startLine, numLines = 4) {
 	cm.replaceRange("\n".repeat(numLines), { line: startLine, ch: 0 });
 }
 
+function createSelectBox(editor) {
+	// 기존의 select 요소
+	var selectBox = document.createElement('select');
+	selectBox.style.cssText = `
+		border-radius: 5px;
+		border: 1px solid transparent;
+		background-color: transparent;
+		font-size: 12px;
+		color: #fff;
+		appearance: none;
+		-webkit-appearance: none;
+		-moz-appearance: none;
+		text-align: center;
+	`;
+
+	// 옵션 추가
+	var options = [
+		{ value: 'gpt-4.0', text: 'gpt-4.0' },
+		{ value: 'gpt-3.5', text: 'gpt-3.5' },
+		{ value: 'gpt-3', text: 'gpt-3' },
+		{ value: 'gpt-2', text: 'gpt-2' },
+		{ value: 'gpt-4-turbo-2024-04-09', text: 'gpt-4-turbo-2024-04-09' }
+	];
+
+	function handleClick() {
+		console.log('clicked');
+	}
+
+	options.forEach(function(option) {
+		var opt = document.createElement('option');
+		opt.value = option.value;
+		opt.textContent = option.text;
+		opt.addEventListener('click', handleClick);
+		selectBox.appendChild(opt);
+	});
+
+	// 선택된 옵션의 길이에 맞춰 select 박스의 너비를 조정하는 함수
+	function adjustSelectBoxWidth() {
+		console.log('change clicked');
+		console.log(selectBox.options[selectBox.selectedIndex], '[selectBox.selectedIndex]');
+		console.log(selectBox.selectedIndex,'index');
+		var selectedOption = selectBox.options[selectBox.selectedIndex];
+		var tempDiv = document.createElement('div');
+		tempDiv.style.cssText = `
+			position: absolute;
+			visibility: hidden;
+			height: auto;
+			width: auto;
+			white-space: nowrap;
+			font-size: 12px;
+			font-family: Arial, sans-serif;
+		`;
+		tempDiv.textContent = selectedOption.textContent;
+		document.body.appendChild(tempDiv);
+		var width = tempDiv.clientWidth + 10; // 패딩을 고려하여 20px 추가
+		document.body.removeChild(tempDiv);
+		selectBox.style.width = width + 'px';
+	}
+
+	// 초기 너비 조정
+	adjustSelectBoxWidth();
+
+	// 선택이 변경될 때마다 너비 조정
+	selectBox.addEventListener('change', function() {
+		adjustSelectBoxWidth();
+	});
+
+	return selectBox;
+}
+
 function createEditButton(editor) {
     /**
      * 편집 버튼을 생성합니다.
@@ -913,6 +983,7 @@ function createEditButton(editor) {
 		addEmptyLines(editor,sL);
         
         // 박스의 새로운 내용을 설정합니다.
+		var selectBox = createSelectBox(editor);
         box2.innerHTML = `
             <div style="display: flex; justify-content: space-between; align-items: center;">
                 <input type="text" placeholder="Editing instructions... (↑ for history, @ for code / documentation)" style="width: 100%; border: none; background: transparent; color: white; font-size: 12px;" />
@@ -920,7 +991,16 @@ function createEditButton(editor) {
             </div>
             <div style="margin-top: 5px; font-size: 12px; color: #aaa;">
                 <span>undefined to close</span>
-                <span style="float: right;">gpt-4.0 ⌘K to toggle</span>
+				
+				<div style="float: right;">
+					<div style="position: relative; display: inline-block;">
+						<span style="margin-left: 10px; pointer-events: none; vertical-align: middle;"> ▼ </span>
+						${selectBox.outerHTML}
+					</div>
+					<span style="margin-left:5px; ">
+						⌘K to toggle
+					</span>
+				</div>
             </div>
         `;
 

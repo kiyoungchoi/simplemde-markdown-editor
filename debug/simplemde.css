@@ -687,6 +687,77 @@ span.CodeMirror-selectedtext { background: none; }
 }
 
 
+
+.CodeMirror {
+  height: auto;
+  min-height: 300px;
+  border: none;
+  padding: 20px;
+  font-family: Arial, sans-serif;
+  font-size: 12pt;
+  line-height: 1.5;
+  background-color: #fff;
+  box-shadow: 0 0 5px rgba(0,0,0,0.1);
+}
+
+.CodeMirror-scroll {
+  min-height: 300px;
+}
+
+.editor-toolbar {
+  background-color: #f1f1f1;
+  border: none;
+  padding: 6px 10px;
+  user-select: none;
+}
+
+.editor-toolbar a {
+  color: #333 !important;
+  border: 1px solid transparent;
+}
+
+.editor-toolbar a.active,
+.editor-toolbar a:hover {
+  background-color: #e1e1e1;
+  border-color: #d1d1d1;
+}
+
+.editor-statusbar {
+  padding: 8px 10px;
+  font-size: 12px;
+  color: #333;
+  border-top: 1px solid #ddd;
+}
+
+.editor-preview, 
+.editor-preview-side {
+  padding: 20px;
+  font-family: Arial, sans-serif;
+  font-size: 12pt;
+  line-height: 1.5;
+}
+
+/* 헤더 스타일 조정 */
+.CodeMirror .CodeMirror-code .cm-header-1 {
+  font-size: 24pt;
+  line-height: 1.2;
+  margin-top: 20px;
+  margin-bottom: 10px;
+}
+
+.CodeMirror .CodeMirror-code .cm-header-2 {
+  font-size: 18pt;
+  line-height: 1.2;
+  margin-top: 20px;
+  margin-bottom: 10px;
+}
+
+.CodeMirror .CodeMirror-code .cm-header-3 {
+  font-size: 14pt;
+  line-height: 1.2;
+  margin-top: 10px;
+  margin-bottom: 10px;
+}
 .CodeMirror .cm-spell-error:not(.cm-url):not(.cm-comment):not(.cm-tag):not(.cm-word) {
     background: rgba(255, 0, 0, .15);
 }
