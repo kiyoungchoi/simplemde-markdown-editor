@@ -811,164 +811,268 @@ function moveLine(cm, fromLine, toLine) {
     cm.replaceRange(text, { line: toLine, ch: 0 });
 }
 
-/**
- * Create a floating box with buttons when text is selected.
- */
-function createFloatingBox(editor) {
+
+
+function createFloatingBoxElement(id='floating-box') {
     var box = document.createElement('div');
-    box.id = 'floating-box';
-    box.style.position = 'absolute';
-    box.style.zIndex = '100';
-    box.style.display = 'none'; // Initially hidden
-    box.style.padding = '5px 10px';
-    box.style.background = '#333'; // Dark background
-    box.style.color = 'white'; // White text
-    box.style.border = '1px solid #555'; // Dark border
-    box.style.borderRadius = '4px'; // Rounded corners
-    box.style.boxShadow = '0 2px 5px rgba(0, 0, 0, 0.2)'; // Shadow for depth
-    box.style.fontFamily = 'Arial, sans-serif'; // Font style
-    box.style.fontSize = '14px'; // Font size
-
-    // Add "Add to Chat" button
-    var addToChatButton = document.createElement('button');
-    addToChatButton.innerHTML = 'Add to Chat';
-    addToChatButton.style.color = 'white'; // White text
-    addToChatButton.style.background = 'transparent'; // Transparent background
-    addToChatButton.style.border = 'none'; // No border
-    addToChatButton.style.marginRight = '10px'; // Space between buttons
-    addToChatButton.style.cursor = 'pointer'; // Pointer cursor
-    addToChatButton.style.fontSize = '14px'; // Font size
-    addToChatButton.style.transition = 'color 0.3s'; // Smooth transition for hover effect
-    addToChatButton.onmouseover = function () {
-        addToChatButton.style.color = '#ddd'; // Lighter color on hover
-    };
-    addToChatButton.onmouseout = function () {
-        addToChatButton.style.color = 'white'; // Original color when not hovering
-    };
-    addToChatButton.onclick = function () {
-        console.log('Add to Chat clicked');
-    };
-    box.appendChild(addToChatButton);
-
-    // Add "Edit" button
-    var editButton = document.createElement('button');
-    editButton.innerHTML = 'Edit';
-    editButton.style.color = 'white'; // White text
-    editButton.style.background = 'transparent'; // Transparent background
-    editButton.style.border = 'none'; // No border
-    editButton.style.cursor = 'pointer'; // Pointer cursor
-    editButton.style.fontSize = '14px'; // Font size
-    editButton.style.transition = 'color 0.3s'; // Smooth transition for hover effect
-    editButton.onmouseover = function () {
-        editButton.style.color = '#ddd'; // Lighter color on hover
-    };
-
-    editButton.onmouseout = function () {
-        editButton.style.color = 'white'; // Original color when not hovering
-    };
-
-    editButton.onclick = function () {
-		var cm = editor.codemirror;
-		var cursor = cm.getCursor("start"); // 선택한 텍스트의 시작 위치를 가져옵니다.
-		var coords = cm.charCoords(cursor, "window"); // 해당 커서의 좌표를 가져옵니다.
-		var line = cursor.line; // 선택한 텍스트의 라인 번호를 가져옵니다.
-		console.log('curious',cm);
-		//moveLine(cm, line, line + 3);
-
-
-		var fromLine = line;
-		var lastLine = cm.lineCount(); // 전체 라인 수를 가져옵니다.
-		// for (var i = lastLine-1; i >= fromLine; i--) {
-		// 	var text = cm.getLine(i);
-		// 	cm.replaceRange("", { line: i, ch: 0 }, { line: i, ch: text.length });
-		// 	cm.replaceRange(text, { line: i + 3, ch: 0 });
-		// }
-		// // 선택한 라인에 빈 줄을 추가합니다.
-		cm.replaceRange("\n\n\n\n", { line: fromLine, ch: 0 });
-
-		
-	
-		// 박스의 새로운 내용을 설정합니다.
-		box.innerHTML = `
-			<div style="display: flex; justify-content: space-between; align-items: center;">
-				<input type="text" placeholder="Editing instructions... (↑ for history, @ for code / documentation)" style="width: 100%; border: none; background: transparent; color: white; font-size: 12px;" />
-				<button style="color: white; background: transparent; border: none; cursor: pointer; font-size: 14px;" id="close-button" data-line="${line}">✕</button>
-			</div>
-			<div style="margin-top: 5px; font-size: 12px; color: #aaa;">
-				<span>undefined to close</span>
-				<span style="float: right;">gpt-4.0 ⌘K to toggle</span>
-			</div>
-		`;
-
-		box.style.padding = '10px'; // 새로운 내용에 맞게 패딩을 조정합니다.
-		box.style.width = '520px'; // 박스의 너비를 설정합니다.
-	
-		// 선택한 텍스트의 첫 번째 라인의 위쪽에 박스를 배치합니다.
-		var firstLineCoords = cm.charCoords({ line: line+4, ch: 0 }, "window");
-	
-		var topPosition = firstLineCoords.top - box.offsetHeight - 10; // 첫 번째 라인의 위쪽에 박스를 배치합니다.
-	
-		// 박스가 화면 밖으로 나가지 않도록 조정합니다.
-		if (topPosition < 0) {
-			topPosition = firstLineCoords.bottom + 10; // 위쪽 공간이 부족할 경우 아래쪽에 위치시킵니다.
-		}
-	
-		box.style.left = firstLineCoords.left + 'px'; // 박스의 왼쪽 위치를 설정합니다.
-		box.style.top = topPosition + 'px'; // 박스의 상단 위치를 설정합니다.
-		box.style.display = 'block'; // 박스를 보이게 합니다.
-	
-		// 닫기 버튼에 이벤트 리스너를 추가합니다.
-		document.getElementById('close-button').onclick = function() {
-			var fromLine = this.getAttribute('data-line'); // data-line 속성에서 라인 번호를 가져옵니다.
-			// console.log(line,'line');
-			var cm = editor.codemirror; // CodeMirror 인스턴스를 가져옵니다.
-			var toLine = fromLine + 4;
-			var i = 1
-			cm.replaceRange("", { line: i, ch: 0 }, { line: i + 4, ch: 0 });
-			// var fromLine = parseInt(line); // 시작 라인
-			// var toLine = fromLine + 3; // 빈 줄이 추가된 마지막 라인
-		
-			// // fromLine부터 toLine까지 빈 줄을 제거합니다.
-			// for (var i = fromLine; i <= toLine; i++) {
-			// 	cm.replaceRange("", {line: i, ch: 0}, {line: i, ch: cm.getLine(i).length});
-			// }
-
-			// for (var i = fromLine; i < toLine; i++) {
-			// 	var lineContent = cm.getLine(i);
-			// 	console.log(lineContent,'lineContent');
-			// 	if (lineContent.trim() === "") {
-			// 		cm.replaceRange("", { line: i, ch: 0 }, { line: i + 1, ch: 0 });
-			// 		toLine--; // 줄이 삭제되면 전체 라인 수가 줄어들기 때문에 toLine을 감소시킵니다.
-			// 		i--; // 현재 라인을 다시 검사하기 위해 i를 감소시킵니다.
-			// 	}
-			// }
-
-			box.style.display = 'none'; // 닫기 버튼을 클릭하면 박스를 숨깁니다.
-		};
-	};
-    box.appendChild(editButton);
-
-    // Append the floating box to the body
-    document.body.appendChild(box);
+    box.id = id;
+	box.style.cssText = `
+        position: absolute;
+        z-index: 100;
+        display: none;
+        padding: 5px 10px;
+        background: #333;
+        color: white;
+        border: 1px solid #555;
+        border-radius: 4px;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+        font-family: Arial, sans-serif;
+        font-size: 14px;
+    `;
 
     return box;
 }
 
+function createButton(text, handleClick=null) {
+    var button = document.createElement('button');
+    button.textContent = text;
+    button.style.cssText = `
+        color: white;
+        background: transparent;
+        border: none;
+        margin-right: 10px;
+        cursor: pointer;
+        font-size: 14px;
+        transition: color 0.3s;
+    `;
+
+    function handleMouseOver() {
+        button.style.color = '#ddd';
+    }
+
+    function handleMouseOut() {
+        button.style.color = 'white';
+    }
+
+    button.addEventListener('mouseover', handleMouseOver);
+    button.addEventListener('mouseout', handleMouseOut);
+	if (handleClick) {
+        button.addEventListener('click', handleClick);
+    }
+    
+    return button;
+}
+
+function createAddToChatButton(editor) {
+    return createButton('Add to Chat');
+}
+
+function removeEmptyLines(editor, startLine, numLines = 4) {
+    var cm = editor.codemirror;
+    var endLine = startLine + numLines;
+    cm.replaceRange("", { line: startLine, ch: 0 }, { line: endLine, ch: 0 });
+}
+
+function closeBoxIfOpen(editor, box) {
+    if (box.style.display === 'block') {
+        let closeButton = document.getElementById('close-button');
+        var sL = parseInt(closeButton.getAttribute('data-line'));
+        removeEmptyLines(editor, sL);
+        box.style.display = 'none';
+    }
+}
+
+function addEmptyLines(editor, startLine, numLines = 4) {
+	var cm = editor.codemirror;
+	cm.replaceRange("\n".repeat(numLines), { line: startLine, ch: 0 });
+}
+
+function createSelectBox(editor) {
+	// 기존의 select 요소
+	var selectBox = document.createElement('select');
+	selectBox.style.cssText = `
+		border-radius: 5px;
+		border: 1px solid transparent;
+		background-color: transparent;
+		font-size: 12px;
+		color: #fff;
+		appearance: none;
+		-webkit-appearance: none;
+		-moz-appearance: none;
+		text-align: center;
+	`;
+
+	// 옵션 추가
+	var options = [
+		{ value: 'gpt-4.0', text: 'gpt-4.0' },
+		{ value: 'gpt-3.5', text: 'gpt-3.5' },
+		{ value: 'gpt-3', text: 'gpt-3' },
+		{ value: 'gpt-2', text: 'gpt-2' },
+		{ value: 'gpt-4-turbo-2024-04-09', text: 'gpt-4-turbo-2024-04-09' }
+	];
+
+	function handleClick() {
+		console.log('clicked');
+	}
+
+	options.forEach(function(option) {
+		var opt = document.createElement('option');
+		opt.value = option.value;
+		opt.textContent = option.text;
+		opt.addEventListener('click', handleClick);
+		selectBox.appendChild(opt);
+	});
+
+	// 선택된 옵션의 길이에 맞춰 select 박스의 너비를 조정하는 함수
+	function adjustSelectBoxWidth() {
+		console.log('change clicked');
+		console.log(selectBox.options[selectBox.selectedIndex], '[selectBox.selectedIndex]');
+		console.log(selectBox.selectedIndex,'index');
+		var selectedOption = selectBox.options[selectBox.selectedIndex];
+		var tempDiv = document.createElement('div');
+		tempDiv.style.cssText = `
+			position: absolute;
+			visibility: hidden;
+			height: auto;
+			width: auto;
+			white-space: nowrap;
+			font-size: 12px;
+			font-family: Arial, sans-serif;
+		`;
+		tempDiv.textContent = selectedOption.textContent;
+		document.body.appendChild(tempDiv);
+		var width = tempDiv.clientWidth + 10; // 패딩을 고려하여 20px 추가
+		document.body.removeChild(tempDiv);
+		selectBox.style.width = width + 'px';
+	}
+
+	// 초기 너비 조정
+	adjustSelectBoxWidth();
+
+	// 선택이 변경될 때마다 너비 조정
+	selectBox.addEventListener('change', function() {
+		adjustSelectBoxWidth();
+	});
+
+	return selectBox;
+}
+
+function createEditButton(editor) {
+    /**
+     * 편집 버튼을 생성합니다.
+     * @param {Object} editor - SimpleMDE 에디터 인스턴스
+     * @returns {HTMLElement} - 생성된 버튼 엘리먼트
+     */
+
+    function handleClick() {
+        // box init
+        var box = editor.floatingBox;
+        var box2 = editor.floatingBox2;
+
+        if (box2.style.display === 'block') {
+			closeBoxIfOpen(editor, box2);
+        }
+
+        // box2 open
+        box2.style.display = 'block';
+        document.body.appendChild(box2);
+
+        var cm = editor.codemirror;
+        var cursor = cm.getCursor("start");
+        var sL = parseInt(cursor.line);
+		addEmptyLines(editor,sL);
+        
+        // 박스의 새로운 내용을 설정합니다.
+		var selectBox = createSelectBox(editor);
+        box2.innerHTML = `
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+                <input type="text" placeholder="Editing instructions... (↑ for history, @ for code / documentation)" style="width: 100%; border: none; background: transparent; color: white; font-size: 12px;" />
+                <button style="color: white; background: transparent; border: none; cursor: pointer; font-size: 14px;" id="close-button" data-line="${sL}">✕</button>
+            </div>
+            <div style="margin-top: 5px; font-size: 12px; color: #aaa;">
+                <span>undefined to close</span>
+				
+				<div style="float: right;">
+					<div style="position: relative; display: inline-block;">
+						<span style="margin-left: 10px; pointer-events: none; vertical-align: middle;"> ▼ </span>
+						${selectBox.outerHTML}
+					</div>
+					<span style="margin-left:5px; ">
+						⌘K to toggle
+					</span>
+				</div>
+            </div>
+        `;
+
+        box2.style.padding = '10px';
+        box2.style.width = '520px';
+    
+        var firstLineCoords = cm.charCoords({ line: sL + 4, ch: 0 }, "window");
+        var topPosition = firstLineCoords.top - box2.offsetHeight - 10;
+    
+        if (topPosition < 0) {
+            topPosition = firstLineCoords.bottom + 10;
+        }
+    
+        box2.style.left = firstLineCoords.left + 'px';
+        box2.style.top = topPosition + 'px';
+    
+        // 닫기 버튼에 이벤트 리스너를 추가합니다.
+        document.getElementById('close-button').onclick = function() {
+			closeBoxIfOpen(editor, box2);
+        };
+
+        editor.isEditing = true;
+        box.style.display = 'none';
+    }
+
+    return createButton('Edit', handleClick);
+}
+
+/**
+ * Create a floating box with buttons when text is selected.
+ */
+function createFloatingBox(editor) {
+    var box = createFloatingBoxElement('floating-box');
+    var box2 = createFloatingBoxElement('floating-box2');
+
+	editor.floatingBox = box;
+    editor.floatingBox2 = box2;
+
+	var addToChatButton = createAddToChatButton();
+    box.appendChild(addToChatButton);
+
+	var editButton = createEditButton(editor);
+    box.appendChild(editButton);
+
+    // Append the floating box to the body
+    if (!document.body.contains(box)) {
+        document.body.appendChild(box);
+    }
+
+    return {box, box2};
+}
 
 /**
  * Setup event listeners to show/hide the floating box based on text selection.
  */
 function setupFloatingBox(editor) {
     var cm = editor.codemirror;
-    var floatingBox = createFloatingBox(editor);
+	var {box, box2} = createFloatingBox(editor);
 
-    cm.on('cursorActivity', function () {
+    cm.on('cursorActivity', function (cm, ev) {
         var cursor = cm.getCursor();
         var coords = cm.cursorCoords(cursor, 'window');
 
         if (cm.somethingSelected()) {
+
+			if (editor.isEditing) {
+				editor.isEditing = false; // 플래그 초기화
+				return;
+			}
+
             // Calculate the position above the selected text
-            var boxHeight = floatingBox.offsetHeight;
+            var boxHeight = box.offsetHeight;
             var topPosition = coords.top - boxHeight - 10; // 10px space above the cursor
 
             // Ensure the box does not go out of the viewport
@@ -976,15 +1080,14 @@ function setupFloatingBox(editor) {
                 topPosition = coords.bottom + 10; // Position below the cursor if not enough space above
             }
 
-            floatingBox.style.left = coords.left + 'px';
-            floatingBox.style.top = topPosition + 'px';
-            floatingBox.style.display = 'block';
+            box.style.left = coords.left + 'px';
+            box.style.top = topPosition + 'px';
+			box.style.display = 'block';
 
-            // Get the selected text value
             var selectedText = cm.getSelection();
-            console.log('Selected text:', selectedText);
-        } else {
-            floatingBox.style.display = 'none';
+        } 
+		else {
+            box.style.display = 'none';
         }
     });
 }

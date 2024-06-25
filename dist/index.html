@@ -8,11 +8,35 @@
         .CodeMirror, .CodeMirror-scroll {
             min-height: 200px;
         }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            background-color: #f9f9f9;
+            height: 90vh; /* 전체 높이 설정 */
+            display: flex;
+            flex-direction: column;
+        }
+
+        .CodeMirror.cm-s-paper.CodeMirror-wrap {
+            height: 100vh;
+        }
     </style>
 </head>
 <body>
-    <div>let's start</div>
-    <textarea class="simeplemde" id="MyID"></textarea>
+    <div class="container">
+        <textarea class="simeplemde" id="MyID">
+1111111
+22222
+
+44444
+
+66666
+        </textarea>
+    </div>
     <script src="./simplemde.min.js"></script>
     <script>
         var simplemde = new SimpleMDE({ element: document.getElementById("MyID") });
